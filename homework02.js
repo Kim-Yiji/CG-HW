@@ -18,8 +18,8 @@ let translationUniformLocation;
 function init(){
     //쉐이더 load
     Promise.all([
-        fetch('vertex.glsl').then((response) => response.text()),
-        fetch('fragment.glsl').then((response) => response.text())
+        fetch('shVert.glsl').then((response) => response.text()),
+        fetch('shFrag.glsl').then((response) => response.text())
     ]).then(([vsSource, fsSource]) => {
         program = createProgram(vsSource, fsSource);
         gl.useProgram(program);
@@ -31,8 +31,8 @@ function init(){
         gl.uniform2fv(translationUniformLocation, translation);
 
         setupEventListeners();
-        // resizeAspectRatio() 함수를 이용해 canvas 비율 1:1 유지
-        resizeAspectRatio();
+        // 창 크기에 따라 canvas의 비율(1:1)을 유지하도록 함
+        resizeAspectRatio(gl, canvas, render);
         render();
     })
     .catch(err => console.error('Shader load error', err));
@@ -88,45 +88,59 @@ function initBuffers() {
     gl.vertexAttribPointer(aPosition, 2, gl.FLOAT, false, 0, 0);
 }
 
-function setupEventListeners(){
-    //화살표 키 이벤트로 정사각형 이동시킴
-    window.addEventListener('keydown', (event) => {
-        let moved = false;
-        const halfSize = 0.1;  // 정사각형의 반 길이
-        if (event.key === 'ArrowUp') {
-          if (translation[1] + step + halfSize <= 1.0) {
-            translation[1] += step;
-            moved = true;
-          }
-        } else if (event.key === 'ArrowDown') {
-          if (translation[1] - step - halfSize >= -1.0) {
-            translation[1] -= step;
-            moved = true;
-          }
-        } else if (event.key === 'ArrowLeft') {
-          if (translation[0] - step - halfSize >= -1.0) {
-            translation[0] -= step;
-            moved = true;
-          }
-        } else if (event.key === 'ArrowRight') {
-          if (translation[0] + step + halfSize <= 1.0) {
-            translation[0] += step;
-            moved = true;
-          }
-        }
-        if (moved) {
-          gl.uniform2fv(translationUniformLocation, translation);
-          render();
-        }
-      });
-      
-      // keyup 이벤트(필요한 경우 추가 처리 가능)
-      window.addEventListener('keyup', (event) => {
-        if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(event.key)) {
-        
-        }
-      });
+function setupEventListeners() {
+  // 화살표 키 이벤트로 정사각형 이동 (타이트한 경계 처리함함)
+  window.addEventListener('keydown', (event) => {
+    let moved = false;
+    const halfSize = 0.1;  // 정사각형의 반 길이
+
+    if (event.key === 'ArrowUp') {
+      if (translation[1] + step + halfSize > 1.0) {
+        translation[1] = 1.0 - halfSize;
+        moved = true;
+      } else {
+        translation[1] += step;
+        moved = true;
+      }
+    } else if (event.key === 'ArrowDown') {
+      if (translation[1] - step - halfSize < -1.0) {
+        translation[1] = -1.0 + halfSize;
+        moved = true;
+      } else {
+        translation[1] -= step;
+        moved = true;
+      }
+    } else if (event.key === 'ArrowLeft') {
+      if (translation[0] - step - halfSize < -1.0) {
+        translation[0] = -1.0 + halfSize;
+        moved = true;
+      } else {
+        translation[0] -= step;
+        moved = true;
+      }
+    } else if (event.key === 'ArrowRight') {
+      if (translation[0] + step + halfSize > 1.0) {
+        translation[0] = 1.0 - halfSize;
+        moved = true;
+      } else {
+        translation[0] += step;
+        moved = true;
+      }
+    }
+    if (moved) {
+      gl.uniform2fv(translationUniformLocation, translation);
+      render();
+    }
+  });
+  
+  // keyup 이벤트 
+  window.addEventListener('keyup', (event) => {
+    if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(event.key)) {
+      // 현재는 keydown에서 처리됨
+    }
+  });
 }
+
 
 function render() {
     gl.clear(gl.COLOR_BUFFER_BIT);
