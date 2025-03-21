@@ -1,0 +1,39 @@
+<!--position : relative -CSS에서 요소의 위치를 일반적인 문서 흐름(노멀 플로우)을 기준으로 상대적으로 조정할 수 있게 해주는 속성 --> 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            position:  relative; 
+            background-color: #000;
+        }
+        /* Canvas 기본 크기 600x600 */
+        #glCanvas {
+            display: block;
+            width: 600px;
+            height: 600px;
+            border: 1px solid #333;
+        }
+        #message {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            font-size: 16px;
+            pointer-events: none;
+        }
+    </style>    
+    <title>Moving Red Rectangle</title>
+</head>
+<body>
+    <div id="message">Use arrow keys to move the rectangle</div>
+    <canvas id="glCanvas" width="600" height="600"></canvas>
+    <script type="module" src="./Homework02.js"></script>
+</body>
+</html>
+  
